@@ -16,6 +16,28 @@ import Register from '@/pages/Register';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
 
+// Catches any render crash and shows the actual error instead of blank screen
+class ErrorBoundary extends React.Component {
+  constructor(props) { super(props); this.state = { error: null }; }
+  static getDerivedStateFromError(error) { return { error }; }
+  render() {
+    if (this.state.error) {
+      return (
+        <div style={{ padding: '40px', fontFamily: 'monospace', background: '#fff', minHeight: '100vh' }}>
+          <h2 style={{ color: '#e11d48', marginBottom: '12px' }}>⚠️ App Crashed</h2>
+          <p style={{ marginBottom: '8px', color: '#555' }}>Please share this error with the developer:</p>
+          <pre style={{ background: '#fef2f2', border: '1px solid #fecaca', padding: '16px', borderRadius: '8px', whiteSpace: 'pre-wrap', color: '#991b1b' }}>
+            {this.state.error.toString()}
+            {this.state.error.stack}
+          </pre>
+          <button onClick={() => window.location.href = '/login'} style={{ marginTop: '16px', padding: '8px 16px', background: '#6366f1', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>Back to Login</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 import AppLayout from '@/components/layout/AppLayout';
 import Dashboard from '@/pages/Dashboard';
 import Colleges from '@/pages/Colleges';
@@ -121,15 +143,17 @@ const AuthenticatedApp = () => {
 
 function App() {
   return (
-    <AuthProvider>
-      <QueryClientProvider client={queryClientInstance}>
-        <Router>
-          <ScrollToTop />
-          <AuthenticatedApp />
-        </Router>
-        <Toaster />
-      </QueryClientProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <QueryClientProvider client={queryClientInstance}>
+          <Router>
+            <ScrollToTop />
+            <AuthenticatedApp />
+          </Router>
+          <Toaster />
+        </QueryClientProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   )
 }
 
