@@ -39,6 +39,7 @@ export default function Startups() {
 
   const role = user?.role || 'core_team';
   const userCollegeId = user?.college_id;
+  const canManage = role === 'admin' || role === 'associate';
 
   const createNotif = async (type, message, entityId, collegeId) => {
     try {
@@ -83,13 +84,13 @@ export default function Startups() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Force college_id for non-admin users
-    const data = role !== 'admin' ? { ...form, college_id: userCollegeId } : form;
+    // Force college_id for non-admin/non-associate users
+    const data = !canManage ? { ...form, college_id: userCollegeId } : form;
     if (editing) updateMut.mutate({ id: editing.id, data });
     else createMut.mutate(data);
   };
 
-  const visibleStartups = ((role === 'admin' || !userCollegeId) ? startups : startups.filter(s => s.college_id === userCollegeId))
+  const visibleStartups = ((canManage || !userCollegeId) ? startups : startups.filter(s => s.college_id === userCollegeId))
     .filter(s => filterStage === 'all' || s.stage === filterStage)
     .filter(s => filterCollege === 'all' || s.college_id === filterCollege)
     .filter(s => !search || s.name?.toLowerCase().includes(search.toLowerCase()) || s.domain?.toLowerCase().includes(search.toLowerCase()));
@@ -117,7 +118,7 @@ export default function Startups() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>College *</Label>
-                  {role === 'admin' ? (
+                  {canManage ? (
                     <Select value={form.college_id} onValueChange={v => setForm({...form, college_id: v})}>
                       <SelectTrigger><SelectValue placeholder="Select college" /></SelectTrigger>
                       <SelectContent>
@@ -190,7 +191,7 @@ export default function Startups() {
             <SelectItem value="revenue">Revenue</SelectItem>
           </SelectContent>
         </Select>
-        {role === 'admin' && (
+        {canManage && (
           <Select value={filterCollege} onValueChange={setFilterCollege}>
             <SelectTrigger className="w-[180px]"><SelectValue placeholder="College" /></SelectTrigger>
             <SelectContent>
