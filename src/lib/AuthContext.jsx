@@ -58,6 +58,11 @@ export const AuthProvider = ({ children }) => {
     const initAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
+        if (window.location.pathname === '/reset-password') {
+          setIsLoadingAuth(false);
+          setAuthChecked(true);
+          return;
+        }
         await checkUserAuth();
       } else {
         setUser(null);
@@ -72,6 +77,11 @@ export const AuthProvider = ({ children }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Supabase auth event:', event);
       if (event === 'SIGNED_IN') {
+        if (window.location.pathname === '/reset-password') {
+          setIsLoadingAuth(false);
+          setAuthChecked(true);
+          return;
+        }
         await checkUserAuth();
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
@@ -84,6 +94,9 @@ export const AuthProvider = ({ children }) => {
       } else if (event === 'TOKEN_REFRESHED') {
         // Session token was refreshed — re-check user state quietly
         if (!isCheckingRef.current) {
+          if (window.location.pathname === '/reset-password') {
+            return;
+          }
           await checkUserAuth();
         }
       }
