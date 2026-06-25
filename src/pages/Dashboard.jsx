@@ -40,20 +40,23 @@ export default function Dashboard() {
   const collegeName = userCollege?.name;
 
   return (
-    <div className="space-y-8">
+    <div className={`space-y-8 ${(role === 'faculty' || role === 'core_team') ? 'scaled-text-dashboard' : ''}`}>
       {/* Header */}
-      <div>
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-heading font-bold text-foreground">
+            {greeting()}, {user?.full_name?.split(' ')[0] || 'there'}
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Here's what's happening across {(role === 'admin' || role === 'associate') ? 'all programs' : 'your college'}
+          </p>
+        </div>
+        
         {(role === 'faculty' || role === 'core_team') && collegeName && (
-          <div className="text-sm text-[#00ADB5] font-semibold tracking-wider uppercase mb-2">
+          <div className="text-lg md:text-xl text-[#00ADB5] font-bold tracking-wider uppercase md:text-right bg-[#00ADB5]/5 border border-[#00ADB5]/10 rounded-xl px-4 py-2 shadow-sm self-start mr-12 md:mr-20">
             {collegeName}
           </div>
         )}
-        <h1 className="text-2xl font-heading font-bold text-foreground">
-          {greeting()}, {user?.full_name?.split(' ')[0] || 'there'}
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Here's what's happening across {(role === 'admin' || role === 'associate') ? 'all programs' : 'your college'}
-        </p>
       </div>
 
       {/* Stats */}

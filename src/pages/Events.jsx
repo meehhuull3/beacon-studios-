@@ -111,7 +111,7 @@ export default function Events() {
           <h1 className="text-2xl font-heading font-bold">Events & Programs</h1>
           <p className="text-sm text-muted-foreground mt-1">Events, podcasts, talks, cohorts & workshops</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 mr-12 md:mr-20">
           {canPropose && (
             <Button variant="outline" className="gap-2" onClick={() => setProposeOpen(true)}>
               <Send className="w-4 h-4" />Propose

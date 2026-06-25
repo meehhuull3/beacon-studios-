@@ -23,6 +23,7 @@ const adminLinks = [
 
 const associateLinks = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/approvals', icon: UserCheck, label: 'Approvals' },
   { to: '/proposals', icon: ClipboardList, label: 'Proposals' },
   { to: '/startups', icon: Rocket, label: 'Startups' },
   { to: '/events', icon: Calendar, label: 'Events' },
@@ -39,6 +40,7 @@ const facultyLinks = [
   { to: '/students', icon: GraduationCap, label: 'Students' },
   { to: '/messaging', icon: MessageSquare, label: 'Messaging' },
   { to: '/broadcast', icon: Megaphone, label: 'Broadcast' },
+  { to: '/team', icon: Users, label: 'Core Team' },
 ];
 
 const coreTeamLinks = [
@@ -47,6 +49,7 @@ const coreTeamLinks = [
   { to: '/events', icon: Calendar, label: 'Events' },
   { to: '/students', icon: GraduationCap, label: 'Students' },
   { to: '/messaging', icon: MessageSquare, label: 'Messaging' },
+  { to: '/team', icon: Users, label: 'Core Team' },
 ];
 
 import { BeaconLogo } from '@/components/ui/BeaconLogo';
@@ -55,6 +58,22 @@ export default function Sidebar({ user, collapsed, onToggle }) {
   const location = useLocation();
   const role = user?.role || 'core_team';
   
+  const getRoleLabel = () => {
+    if (role === 'core_team') {
+      const pos = user?.position;
+      const posLabel = pos === 'president' ? 'President'
+        : pos === 'vice_president' ? 'Vice President'
+        : pos === 'marketing' ? 'Marketing'
+        : pos === 'tech' ? 'Tech'
+        : pos;
+      return posLabel ? `Core Team - ${posLabel}` : 'Core Team';
+    }
+    return role === 'admin' ? 'Admin'
+      : role === 'associate' ? 'Associate'
+      : role === 'faculty' ? 'Faculty'
+      : role?.replace('_', ' ');
+  };
+
   const links = role === 'admin' ? adminLinks
     : role === 'associate' ? associateLinks
     : role === 'faculty' ? facultyLinks
@@ -112,7 +131,7 @@ export default function Sidebar({ user, collapsed, onToggle }) {
         {!collapsed && (
           <div className="px-3 py-2 mb-2">
             <p className="text-xs font-medium text-sidebar-foreground truncate">{user?.full_name}</p>
-            <p className="text-[10px] text-sidebar-foreground/50 capitalize">{role?.replace('_', ' ')}</p>
+            <p className="text-[10px] text-sidebar-foreground/50">{getRoleLabel()}</p>
           </div>
         )}
         <button

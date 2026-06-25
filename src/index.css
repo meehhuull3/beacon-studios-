@@ -89,3 +89,29 @@
     @apply bg-background text-foreground font-body;
   }
 }
+
+/* Scaled text for Faculty/Core Team dashboard */
+.scaled-text-dashboard .text-xs {
+  font-size: 0.85rem !important;
+}
+.scaled-text-dashboard .text-sm {
+  font-size: 0.95rem !important;
+}
+.scaled-text-dashboard .text-base {
+  font-size: 1.05rem !important;
+}
+.scaled-text-dashboard .text-lg {
+  font-size: 1.2rem !important;
+}
+.scaled-text-dashboard .text-xl {
+  font-size: 1.35rem !important;
+}
+.scaled-text-dashboard .text-2xl {
+  font-size: 1.65rem !important;
+}
+.scaled-text-dashboard .text-3xl {
+  font-size: 2.1rem !important;
+}
+.scaled-text-dashboard .text-4xl {
+  font-size: 2.5rem !important;
+}

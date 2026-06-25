@@ -47,7 +47,7 @@ export default function AppLayout({ user }) {
         "pt-14 lg:pt-0",
         collapsed ? "lg:ml-[72px]" : "lg:ml-[260px]"
       )}>
-        <div className="p-4 lg:p-8 max-w-[1600px]">
+        <div className="p-4 lg:px-8 lg:pt-16 lg:pb-8 max-w-[1600px]">
           <Outlet />
         </div>
       </main>

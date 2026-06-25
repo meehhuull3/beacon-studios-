@@ -72,7 +72,7 @@ export default function Students() {
         {canEdit && (
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button className="gap-2"><Plus className="w-4 h-4" />Add Student</Button>
+              <Button className="gap-2 mr-12 md:mr-20"><Plus className="w-4 h-4" />Add Student</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader><DialogTitle>Add Student</DialogTitle></DialogHeader>

@@ -96,6 +96,7 @@ export default function Messaging() {
   const groupMessages = allMessages
     .filter(m => {
       if (m.group_id !== (activeGroup?.id || activeGroupId)) return false;
+      if (m.is_system || m.sender_role === 'system' || m.sender_name === 'System') return false; // Exclude system messages
       if (accountCreatedDate && m.created_at) {
         if (new Date(m.created_at) < accountCreatedDate) return false;
       }
@@ -128,7 +129,7 @@ export default function Messaging() {
   const canSend = activeGroup?.canSend;
 
   return (
-    <div className="flex h-[calc(100vh-120px)] bg-card rounded-2xl border border-border overflow-hidden">
+    <div className="flex h-[calc(100vh-140px)] bg-card rounded-2xl border border-border overflow-hidden">
       {/* Sidebar */}
       <div className="w-64 flex-shrink-0 border-r border-border flex flex-col bg-muted/20">
         <div className="px-4 py-4 border-b border-border">
@@ -160,6 +161,7 @@ export default function Messaging() {
               <span className="text-[10px] text-muted-foreground">
                 {allMessages.filter(m => {
                   if (m.group_id !== g.id) return false;
+                  if (m.is_system || m.sender_role === 'system' || m.sender_name === 'System') return false; // Exclude system messages
                   if (accountCreatedDate && m.created_at) {
                     if (new Date(m.created_at) < accountCreatedDate) return false;
                   }

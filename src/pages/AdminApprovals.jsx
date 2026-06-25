@@ -87,27 +87,6 @@ export default function AdminApprovals() {
             entity_type: 'teammember'
           });
         } catch {}
-        // Post system messages to relevant messaging groups
-        try {
-          const systemMsg = `${member.full_name} has joined as ${roleLabels[member.role] || member.role}.`;
-          const systemBase = { sender_name: 'System', sender_role: 'system', is_system: true, content: systemMsg };
-          const role = member.role;
-          // All relevant groups based on role
-          const groupsToNotify = [];
-          if (role === 'admin') groupsToNotify.push('admins_associates', 'admins_all');
-          if (role === 'associate') groupsToNotify.push('admins_associates', 'associates_faculty', 'associates_coreteam', 'associates_all');
-          if (role === 'faculty') {
-            groupsToNotify.push('admins_all', 'associates_faculty', 'associates_all');
-            if (member.college_id) groupsToNotify.push(`college_${member.college_id}`);
-          }
-          if (role === 'core_team') {
-            groupsToNotify.push('admins_all', 'associates_coreteam', 'associates_all');
-            if (member.college_id) groupsToNotify.push(`college_${member.college_id}`);
-          }
-          for (const groupId of groupsToNotify) {
-            await base44.entities.Message.create({ ...systemBase, group_id: groupId, college_id: member.college_id || null });
-          }
-        } catch {}
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['team'] }); toast.success('Member approved'); setSelected(null); },
   });
@@ -213,8 +192,12 @@ export default function AdminApprovals() {
               className="h-8 rounded-md border border-input bg-background px-2.5 py-1 text-xs shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring text-muted-foreground font-medium"
             >
               <option value="all">All Roles</option>
-              <option value="admin">Admin</option>
-              <option value="associate">Associate</option>
+              {role === 'admin' && (
+                <>
+                  <option value="admin">Admin</option>
+                  <option value="associate">Associate</option>
+                </>
+              )}
               <option value="faculty">Faculty</option>
               <option value="core_team">Core Team</option>
             </select>

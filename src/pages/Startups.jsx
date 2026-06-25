@@ -109,7 +109,7 @@ export default function Startups() {
         </div>
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditing(null); resetForm(); } }}>
           <DialogTrigger asChild>
-            <Button className="gap-2"><Plus className="w-4 h-4" />Add Startup</Button>
+            <Button className="gap-2 mr-12 md:mr-20"><Plus className="w-4 h-4" />Add Startup</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>{editing ? 'Edit' : 'Add'} Startup</DialogTitle></DialogHeader>

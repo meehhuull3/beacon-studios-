@@ -105,7 +105,7 @@ export default function NotificationCenter({ user }) {
     return true;
   });
 
-  const allItems = [
+  const sortedAllItems = [
     ...visibleBroadcasts.map(b => ({
       id: b.id,
       type: 'broadcast',
@@ -120,6 +120,16 @@ export default function NotificationCenter({ user }) {
     })),
     ...visibleNotifications.map(n => ({ ...n, _isBroadcast: false, _full: n })),
   ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+  // Deduplicate notifications with the exact same message content
+  const seenMessages = new Set();
+  const allItems = [];
+  for (const item of sortedAllItems) {
+    if (!seenMessages.has(item.message)) {
+      seenMessages.add(item.message);
+      allItems.push(item);
+    }
+  }
 
   const unreadCount = visibleNotifications.filter(n => !n.is_read).length;
 

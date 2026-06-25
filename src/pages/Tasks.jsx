@@ -74,7 +74,7 @@ export default function Tasks() {
         {canAssign && (
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button className="gap-2"><Plus className="w-4 h-4" />Assign Task</Button>
+              <Button className="gap-2 mr-12 md:mr-20"><Plus className="w-4 h-4" />Assign Task</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader><DialogTitle>Assign New Task</DialogTitle></DialogHeader>

@@ -61,7 +61,7 @@ export default function Analytics() {
           <p className="text-sm text-muted-foreground mt-1">Program performance & insights</p>
         </div>
         <Select value={filterCollege} onValueChange={setFilterCollege}>
-          <SelectTrigger className="w-[200px]"><SelectValue placeholder="All Colleges" /></SelectTrigger>
+          <SelectTrigger className="w-[200px] mr-12 md:mr-20"><SelectValue placeholder="All Colleges" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Colleges</SelectItem>
             {colleges.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
