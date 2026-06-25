@@ -34,9 +34,9 @@ export default function Broadcast() {
 
   // Faculty can only broadcast to core team of their college
   const isFaculty = role === 'faculty';
-  const isAdmin = role === 'admin';
+  const canManage = role === 'admin' || role === 'associate';
 
-  const needsCollege = isAdmin && form.target_audience?.startsWith('specific_college');
+  const needsCollege = canManage && form.target_audience?.startsWith('specific_college');
 
   const createMut = useMutation({
     mutationFn: async (d) => {
@@ -125,8 +125,8 @@ export default function Broadcast() {
           />
         </div>
         <div className="grid md:grid-cols-3 gap-4">
-          {/* Admin audience selector */}
-          {isAdmin && (
+          {/* Admin/Associate audience selector */}
+          {canManage && (
             <div className="space-y-2">
               <Label>Audience</Label>
               <Select value={form.target_audience} onValueChange={v => setForm({...form, target_audience: v})}>
@@ -146,8 +146,8 @@ export default function Broadcast() {
               </div>
             </div>
           )}
-          {/* College selector (admin + specific_college) */}
-          {isAdmin && needsCollege && (
+          {/* College selector (admin/associate + specific_college) */}
+          {canManage && needsCollege && (
             <div className="space-y-2">
               <Label>College</Label>
               <Select value={form.college_id} onValueChange={v => setForm({...form, college_id: v})}>

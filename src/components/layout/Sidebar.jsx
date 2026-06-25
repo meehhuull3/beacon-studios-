@@ -12,6 +12,7 @@ const adminLinks = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/approvals', icon: UserCheck, label: 'Approvals' },
   { to: '/colleges', icon: Building2, label: 'Colleges' },
+  { to: '/proposals', icon: ClipboardList, label: 'Proposals' },
   { to: '/startups', icon: Rocket, label: 'Startups' },
   { to: '/events', icon: Calendar, label: 'Events' },
   { to: '/students', icon: GraduationCap, label: 'Students' },
@@ -28,6 +29,7 @@ const associateLinks = [
   { to: '/students', icon: GraduationCap, label: 'Students' },
   { to: '/colleges', icon: Building2, label: 'Colleges' },
   { to: '/messaging', icon: MessageSquare, label: 'Messaging' },
+  { to: '/broadcast', icon: Megaphone, label: 'Broadcast' },
 ];
 
 const facultyLinks = [

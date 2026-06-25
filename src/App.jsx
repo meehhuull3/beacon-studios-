@@ -57,7 +57,7 @@ const AuthenticatedApp = () => {
   const [isPending, setIsPending] = React.useState(null);
 
   React.useEffect(() => {
-    if (user && user.role !== 'admin') {
+    if (user) {
       const checkApproval = async () => {
         try {
           const members = await base44.entities.TeamMember.filter({ user_id: user.id }, '-created_at', 1);
@@ -77,8 +77,6 @@ const AuthenticatedApp = () => {
         }
       };
       checkApproval();
-    } else if (user && user.role === 'admin') {
-      setIsPending(false);
     }
   }, [user]);
 
@@ -128,7 +126,7 @@ const AuthenticatedApp = () => {
           <Route path="/events" element={<Events />} />
           <Route path="/broadcast" element={<Broadcast />} />
           <Route path="/analytics" element={<Analytics />} />
-          <Route path="/approvals" element={<AdminApprovals />} />
+          <Route path="/approvals" element={user?.role === 'admin' ? <AdminApprovals /> : <Navigate to="/" replace />} />
           <Route path="/proposals" element={<Proposals />} />
           <Route path="/students" element={<Students />} />
           <Route path="/messaging" element={<Messaging />} />

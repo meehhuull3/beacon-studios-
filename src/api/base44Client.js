@@ -115,21 +115,35 @@ export const base44 = {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
       
-      // Fetch team member profile by email (handles migrated Base44 records)
-      const { data: member, error } = await supabase
+      // 1. Try to fetch by user_id first
+      let { data: member, error } = await supabase
         .from('team_member')
         .select('*')
-        .eq('email', user.email)
-        .single();
+        .eq('user_id', user.id)
+        .maybeSingle();
         
-      if (error && error.code !== 'PGRST116') {
-        // PGRST116 = no rows found — not a real error
-        console.warn('me() query error:', error.message);
+      if (error) {
+        console.warn('me() query by user_id error:', error.message);
         throw error;
+      }
+      
+      // 2. If not found, fall back to fetching by email (for migrated records)
+      if (!member) {
+        const { data: memberByEmail, error: emailError } = await supabase
+          .from('team_member')
+          .select('*')
+          .eq('email', user.email)
+          .maybeSingle();
+          
+        if (emailError) {
+          console.warn('me() query by email error:', emailError.message);
+          throw emailError;
+        }
+        member = memberByEmail;
       }
         
       if (member) {
-        // Auto-heal user_id if it still points to old Base44 hex ID
+        // Auto-heal user_id if it still points to old Base44 hex ID or is null
         if (member.user_id !== user.id) {
           await supabase.from('team_member').update({ user_id: user.id }).eq('id', member.id);
           member.user_id = user.id;
