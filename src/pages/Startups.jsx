@@ -57,6 +57,7 @@ export default function Startups() {
       qc.invalidateQueries({ queryKey: ['startups'] }); setOpen(false); resetForm(); toast.success('Startup added');
       createNotif('startup_added', `${user?.full_name || 'Someone'} added a new startup "${form.name}"`, result.id, form.college_id);
     },
+    onError: (err) => { toast.error(err.message || 'Failed to add startup'); },
   });
   const updateMut = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Startup.update(id, data),
@@ -64,6 +65,7 @@ export default function Startups() {
       qc.invalidateQueries({ queryKey: ['startups'] }); setOpen(false); setEditing(null); resetForm(); toast.success('Startup updated');
       createNotif('startup_updated', `${user?.full_name || 'Someone'} updated "${form.name}"`, editing?.id, editing?.college_id);
     },
+    onError: (err) => { toast.error(err.message || 'Failed to update startup'); },
   });
   const deleteMut = useMutation({
     mutationFn: (id) => base44.entities.Startup.delete(id),
@@ -72,6 +74,7 @@ export default function Startups() {
       const s = startups.find(x => x.id === deletedId);
       if (s) createNotif('startup_removed', `${user?.full_name || 'Someone'} removed "${s.name}"`, deletedId, s.college_id);
     },
+    onError: (err) => { toast.error(err.message || 'Failed to remove startup'); },
   });
 
   const resetForm = () => setForm({ name: '', college_id: '', domain: '', stage: 'ideation', phase: 'genesis', description: '', last_update: '' });

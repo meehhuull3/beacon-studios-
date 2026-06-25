@@ -30,14 +30,17 @@ export default function Colleges() {
   const createMut = useMutation({
     mutationFn: (d) => base44.entities.College.create(d),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['colleges'] }); setOpen(false); resetForm(); toast.success('College added'); },
+    onError: (err) => { toast.error(err.message || 'Failed to add college'); },
   });
   const updateMut = useMutation({
     mutationFn: ({ id, data }) => base44.entities.College.update(id, data),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['colleges'] }); setOpen(false); setEditing(null); resetForm(); toast.success('College updated'); },
+    onError: (err) => { toast.error(err.message || 'Failed to update college'); },
   });
   const deleteMut = useMutation({
     mutationFn: (id) => base44.entities.College.delete(id),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['colleges'] }); toast.success('College removed'); },
+    onError: (err) => { toast.error(err.message || 'Failed to remove college'); },
   });
 
   const resetForm = () => setForm({ name: '', location: '', contact_email: '', contact_phone: '', mou_date: '', program_start_date: '', program_duration_days: 90, status: 'active' });
