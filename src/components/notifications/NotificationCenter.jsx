@@ -41,13 +41,14 @@ export default function NotificationCenter({ user }) {
 
   // Realtime subscription
   useEffect(() => {
-    const notifChannel = supabase.channel('realtime_notifications')
+    const channelId = Math.random().toString(36).substring(7);
+    const notifChannel = supabase.channel(`realtime_notifications_${channelId}`)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notification' }, () => {
         qc.invalidateQueries({ queryKey: ['notifications'] });
       })
       .subscribe();
 
-    const broadcastChannel = supabase.channel('realtime_broadcasts')
+    const broadcastChannel = supabase.channel(`realtime_broadcasts_${channelId}`)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'broadcast' }, () => {
         qc.invalidateQueries({ queryKey: ['broadcasts'] });
       })
