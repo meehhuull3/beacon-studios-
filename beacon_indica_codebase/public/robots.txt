@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://beaconindica.com/sitemap.xml

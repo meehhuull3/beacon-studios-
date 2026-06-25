@@ -1,0 +1,82 @@
+{
+  "name": "Proposal",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "event",
+        "cohort",
+        "talk",
+        "podcast",
+        "workshop",
+        "other"
+      ],
+      "default": "event"
+    },
+    "custom_type": {
+      "type": "string",
+      "description": "Used when type is 'other'"
+    },
+    "college_id": {
+      "type": "string"
+    },
+    "proposer_id": {
+      "type": "string",
+      "description": "TeamMember ID"
+    },
+    "proposer_name": {
+      "type": "string"
+    },
+    "proposer_role": {
+      "type": "string"
+    },
+    "proposer_email": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "time": {
+      "type": "string"
+    },
+    "venue": {
+      "type": "string"
+    },
+    "mentor_name": {
+      "type": "string"
+    },
+    "expected_attendees": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "declined"
+      ],
+      "default": "pending"
+    },
+    "response_message": {
+      "type": "string",
+      "description": "Associate's message on approval/decline"
+    },
+    "reviewed_by": {
+      "type": "string",
+      "description": "Associate name"
+    }
+  },
+  "required": [
+    "title",
+    "college_id",
+    "proposer_name"
+  ]
+}

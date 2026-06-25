@@ -1,0 +1,63 @@
+{
+  "name": "Notification",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": [
+        "broadcast",
+        "startup_added",
+        "startup_removed",
+        "startup_updated",
+        "event_added",
+        "event_removed",
+        "event_updated",
+        "member_approved",
+        "member_removed"
+      ],
+      "description": "Type of notification"
+    },
+    "message": {
+      "type": "string",
+      "description": "Notification message"
+    },
+    "college_id": {
+      "type": "string",
+      "description": "Target college (null = all)"
+    },
+    "target_role": {
+      "type": "string",
+      "enum": [
+        "admin",
+        "faculty",
+        "core_team",
+        "all"
+      ],
+      "default": "all"
+    },
+    "actor_name": {
+      "type": "string",
+      "description": "Who performed the action"
+    },
+    "actor_role": {
+      "type": "string",
+      "description": "Role of the actor"
+    },
+    "entity_id": {
+      "type": "string",
+      "description": "Related entity ID"
+    },
+    "entity_type": {
+      "type": "string",
+      "description": "Related entity type (startup, event, etc)"
+    },
+    "is_read": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "message",
+    "type"
+  ]
+}

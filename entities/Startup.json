@@ -1,0 +1,88 @@
+{
+  "name": "Startup",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "college_id": {
+      "type": "string"
+    },
+    "domain": {
+      "type": "string",
+      "description": "Industry/domain of the startup"
+    },
+    "stage": {
+      "type": "string",
+      "enum": [
+        "ideation",
+        "validating",
+        "mvp_live",
+        "revenue"
+      ],
+      "default": "ideation"
+    },
+    "phase": {
+      "type": "string",
+      "enum": [
+        "genesis",
+        "fellowship",
+        "accelerator"
+      ],
+      "default": "genesis"
+    },
+    "description": {
+      "type": "string"
+    },
+    "team_members": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "branch": {
+            "type": "string"
+          },
+          "college_id_number": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "faculty_id": {
+      "type": "string",
+      "description": "Assigned faculty member ID"
+    },
+    "funding_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "revenue_generated": {
+      "type": "number",
+      "default": 0
+    },
+    "last_update": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "completed",
+        "paused",
+        "dropped"
+      ],
+      "default": "active"
+    },
+    "added_by": {
+      "type": "string",
+      "description": "Team member who added this"
+    }
+  },
+  "required": [
+    "name",
+    "college_id"
+  ]
+}

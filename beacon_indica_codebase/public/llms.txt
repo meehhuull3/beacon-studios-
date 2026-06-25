@@ -1,0 +1,12 @@
+# Beacon Indica
+
+> Venture studios embedded inside Indian college campuses — a structured pipeline that takes students from idea to funded startup.
+
+## Pages
+
+- [Home](/): Overview of the Beacon Indica ecosystem and pipeline.
+- [Programs](/programs): Genesis, Fellowship, and Accelerator — three structured programs from campus to capital.
+- [Campus Studios](/campus-studios): Student-led venture studios inside partner colleges.
+- [About](/about): Vision, mission, and what makes Beacon different.
+- [Gallery](/gallery): Photos from campus events, founder sessions, and demo days.
+- [Contact](/contact): Get in touch for partnerships, programs, or careers.

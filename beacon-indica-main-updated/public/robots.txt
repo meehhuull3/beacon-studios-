@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://beacon-indica.lovable.app/sitemap.xml

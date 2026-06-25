@@ -1,0 +1,37 @@
+{
+  "name": "Message",
+  "type": "object",
+  "properties": {
+    "group_id": {
+      "type": "string",
+      "description": "Identifier for the message group (e.g. 'admins_associates', 'college_<id>', etc.)"
+    },
+    "sender_id": {
+      "type": "string",
+      "description": "User ID of sender"
+    },
+    "sender_name": {
+      "type": "string"
+    },
+    "sender_role": {
+      "type": "string"
+    },
+    "content": {
+      "type": "string"
+    },
+    "is_system": {
+      "type": "boolean",
+      "default": false,
+      "description": "System-generated join message"
+    },
+    "college_id": {
+      "type": "string",
+      "description": "For college-scoped groups"
+    }
+  },
+  "required": [
+    "group_id",
+    "content",
+    "sender_name"
+  ]
+}

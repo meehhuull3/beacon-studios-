@@ -1,0 +1,27 @@
+plugins = []
+headers = []
+redirects = []
+
+[functions]
+
+[functions."*"]
+
+[build]
+publish = "C:\\Users\\mukul\\Downloads\\beacon-indica-main (5)\\beacon-indica-main\\dist\\client"
+publishOrigin = "config"
+commandOrigin = "config"
+command = "bun run build"
+
+[build.environment]
+
+[build.processing]
+
+[build.processing.css]
+
+[build.processing.html]
+
+[build.processing.images]
+
+[build.processing.js]
+
+[build.services]

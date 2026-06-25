@@ -1,0 +1,56 @@
+{
+  "name": "College",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "College name"
+    },
+    "location": {
+      "type": "string",
+      "description": "City/State"
+    },
+    "mou_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date MOU was signed"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "pending"
+      ],
+      "default": "active"
+    },
+    "program_start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "program_duration_days": {
+      "type": "number",
+      "default": 90
+    },
+    "current_day": {
+      "type": "number",
+      "default": 1
+    },
+    "total_students_enrolled": {
+      "type": "number",
+      "default": 0
+    },
+    "contact_email": {
+      "type": "string"
+    },
+    "contact_phone": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "name": "Task",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "college_id": {
+      "type": "string"
+    },
+    "assigned_to_id": {
+      "type": "string",
+      "description": "TeamMember ID"
+    },
+    "assigned_to_name": {
+      "type": "string"
+    },
+    "assigned_to_role": {
+      "type": "string",
+      "enum": [
+        "faculty",
+        "president",
+        "vice_president",
+        "marketing",
+        "tech"
+      ]
+    },
+    "assigned_by_role": {
+      "type": "string",
+      "enum": [
+        "admin",
+        "faculty"
+      ]
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed",
+        "overdue"
+      ],
+      "default": "pending"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default": "medium"
+    }
+  },
+  "required": [
+    "title",
+    "college_id"
+  ]
+}

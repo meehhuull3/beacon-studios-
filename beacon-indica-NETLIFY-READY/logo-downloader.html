@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beacon Indica — Brand Assets & Logo Downloader</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #051618;
+      --card-bg: #0B2B2E;
+      --accent: #00B3A6;
+      --text-main: #F9F9F9;
+      --text-muted: #8AACA8;
+      --teal-dim: rgba(0, 179, 166, 0.1);
+      --border-color: rgba(138, 172, 168, 0.2);
+    }
+    
+    body {
+      margin: 0;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 40px 20px;
+      box-sizing: border-box;
+    }
+
+    h1, h2, h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 1200px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #F9F9F9 40%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    header p {
+      color: var(--text-muted);
+      margin-top: 10px;
+      font-size: 1.1rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-cols: 1fr;
+      gap: 30px;
+    }
+
+    @media (min-width: 900px) {
+      .grid {
+        grid-template-cols: 1fr 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .card h2 {
+      font-size: 1.5rem;
+      align-self: flex-start;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 8px;
+    }
+
+    .preview-box {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: #0B2B2E;
+      border-radius: 12px;
+      border: 1px dashed var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .preview-box.square {
+      aspect-ratio: 1/1;
+      max-width: 350px;
+    }
+
+    canvas {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .controls {
+      width: 100%;
+      display: grid;
+      grid-template-cols: 1fr 1fr;
+      gap: 12px;
+    }
+
+    label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      display: block;
+      font-weight: 600;
+    }
+
+    select {
+      width: 100%;
+      background: rgba(5, 22, 24, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.95rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .download-btns {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    @media (min-width: 500px) {
+      .download-btns {
+        flex-direction: row;
+      }
+    }
+
+    button {
+      flex: 1;
+      padding: 14px 20px;
+      font-weight: 700;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-png {
+      background: var(--accent);
+      color: #051618;
+    }
+
+    .btn-png:hover {
+      background: #00dac9;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 179, 166, 0.4);
+    }
+
+    .btn-jpg {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+    }
+
+    .btn-jpg:hover {
+      background: rgba(249, 249, 249, 0.05);
+      border-color: var(--text-main);
+      transform: translateY(-2px);
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 40px;
+      border-top: 1px solid var(--border-color);
+      padding-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Beacon Indica Brand Assets</h1>
+      <p>Download pixel-perfect, high-resolution PNG & JPEG formats of the Beacon Indica brand logos.</p>
+    </header>
+
+    <div class="grid">
+      <!-- Horizontal Logo Card -->
+      <div class="card">
+        <h2>Horizontal Logo</h2>
+        <div class="preview-box">
+          <canvas id="canvasHorizontal" width="2200" height="600"></canvas>
+        </div>
+        
+        <div class="controls">
+          <div>
+            <label for="themeHorizontal">Brand Theme</label>
+            <select id="themeHorizontal" onchange="renderHorizontal()">
+              <option value="light">Dark Text (On White/Light)</option>
+              <option value="dark" selected>White Text (On Teal/Dark)</option>
+            </select>
+          </div>
+          <div>
+            <label for="bgHorizontal">File Background</label>
+            <select id="bgHorizontal" onchange="renderHorizontal()">
+              <option value="transparent">Transparent (For PNG)</option>
+              <option value="dark">Brand Dark (#0B2B2E)</option>
+              <option value="light">Brand Light (#F9F9F9)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="download-btns">
+          <button class="btn-png" onclick="download('Horizontal', 'png')">
+            Download PNG
+          </button>
+          <button class="btn-jpg" onclick="download('Horizontal', 'jpg')">
+            Download JPEG
+          </button>
+        </div>
+      </div>
+
+      <!-- Icon Only Card -->
+      <div class="card">
+        <h2>Square Icon</h2>
+        <div class="preview-box square">
+          <canvas id="canvasIcon" width="1000" height="1000"></canvas>
+        </div>
+
+        <div class="controls">
+          <div>
+            <label for="themeIcon">Brand Theme</label>
+            <select id="themeIcon" onchange="renderIcon()">
+              <option value="light">Dark Left Diamond (Standard)</option>
+              <option value="dark" selected>White Left Diamond (Dark Mode)</option>
+            </select>
+          </div>
+          <div>
+            <label for="bgIcon">File Background</label>
+            <select id="bgIcon" onchange="renderIcon()">
+              <option value="transparent">Transparent (For PNG)</option>
+              <option value="dark" selected>Brand Dark (#0B2B2E)</option>
+              <option value="light">Brand Light (#F9F9F9)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="download-btns">
+          <button class="btn-png" onclick="download('Icon', 'png')">
+            Download PNG
+          </button>
+          <button class="btn-jpg" onclick="download('Icon', 'jpg')">
+            Download JPEG
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      &copy; 2026 Beacon Indica. High-fidelity vector rendering canvas system.
+    </div>
+  </div>
+
+  <script>
+    // Wait for fonts to load
+    document.fonts.ready.then(() => {
+      renderHorizontal();
+      renderIcon();
+    });
+
+    function getColors(theme, bg) {
+      const isDarkTheme = theme === 'dark';
+      
+      let background = null;
+      if (bg === 'dark') background = '#0B2B2E';
+      if (bg === 'light') background = '#F9F9F9';
+
+      const leftTriangleColor = isDarkTheme ? '#F9F9F9' : '#0B132B';
+      const rightTriangleColor = '#00B3A6';
+      const textMainColor = isDarkTheme ? '#F9F9F9' : '#0B132B';
+      const textTealColor = '#00B3A6';
+
+      return {
+        background,
+        leftTriangleColor,
+        rightTriangleColor,
+        textMainColor,
+        textTealColor
+      };
+    }
+
+    function renderHorizontal() {
+      const canvas = document.getElementById('canvasHorizontal');
+      const ctx = canvas.getContext('2d');
+      const theme = document.getElementById('themeHorizontal').value;
+      const bg = document.getElementById('bgHorizontal').value;
+
+      const colors = getColors(theme, bg);
+
+      ctx.clearRect(0, 0, 2200, 600);
+
+      // Background
+      if (colors.background) {
+        ctx.fillStyle = colors.background;
+        ctx.fillRect(0, 0, 2200, 600);
+      }
+
+      ctx.save();
+      // Center the whole composition inside the 2200x600 canvas
+      // Original viewBox is 440x85. Let's scale it by 5.5x.
+      // 440 * 5.5 = 2420 (Let's adjust scale to 4.5x for perfect fitting)
+      const scale = 4.8;
+      const contentWidth = 440 * scale;
+      const contentHeight = 85 * scale;
+      const startX = (2200 - contentWidth) / 2;
+      const startY = (600 - contentHeight) / 2;
+
+      ctx.translate(startX, startY);
+      ctx.scale(scale, scale);
+
+      // Draw Left Triangle
+      // translate(4, 6) added directly to vertices:
+      // Left Vertices: (34, 11) -> (6, 48) -> (34, 84)
+      ctx.fillStyle = colors.leftTriangleColor;
+      ctx.beginPath();
+      ctx.moveTo(34, 11);
+      ctx.lineTo(6, 48);
+      ctx.lineTo(34, 84);
+      ctx.closePath();
+      ctx.fill();
+
+      // Draw Right Triangle
+      // Right Vertices: (42, 6) -> (72, 43) -> (42, 79)
+      ctx.fillStyle = colors.rightTriangleColor;
+      ctx.beginPath();
+      ctx.moveTo(42, 6);
+      ctx.lineTo(72, 43);
+      ctx.lineTo(42, 79);
+      ctx.closePath();
+      ctx.fill();
+
+      // Draw Wordmark Text
+      // font family: Plus Jakarta Sans, 42px, y=57, x=88
+      ctx.fillStyle = colors.textMainColor;
+      ctx.font = "800 42px 'Plus Jakarta Sans', system-ui, sans-serif";
+      ctx.fillText("BEACON ", 88, 57);
+
+      // Draw INDICA Text (we calculate spacing manually to render correctly across browsers)
+      const mainTextWidth = ctx.measureText("BEACON ").width;
+      ctx.fillStyle = colors.textTealColor;
+      ctx.font = "700 42px 'Plus Jakarta Sans', system-ui, sans-serif";
+      ctx.fillText("INDICA", 88 + mainTextWidth, 57);
+
+      ctx.restore();
+    }
+
+    function renderIcon() {
+      const canvas = document.getElementById('canvasIcon');
+      const ctx = canvas.getContext('2d');
+      const theme = document.getElementById('themeIcon').value;
+      const bg = document.getElementById('bgIcon').value;
+
+      const colors = getColors(theme, bg);
+
+      ctx.clearRect(0, 0, 1000, 1000);
+
+      // Background
+      if (colors.background) {
+        ctx.fillStyle = colors.background;
+        ctx.fillRect(0, 0, 1000, 1000);
+      }
+
+      ctx.save();
+      // Center and scale by 8.5x
+      const scale = 8.5;
+      const iconWidth = 66 * scale;  // (72 - 6) = 66
+      const iconHeight = 78 * scale; // (84 - 6) = 78
+      
+      const startX = (1000 - iconWidth) / 2 - (6 * scale);
+      const startY = (1000 - iconHeight) / 2 - (6 * scale);
+
+      ctx.translate(startX, startY);
+      ctx.scale(scale, scale);
+
+      // Left Triangle Vertices: (34, 11) -> (6, 48) -> (34, 84)
+      ctx.fillStyle = colors.leftTriangleColor;
+      ctx.beginPath();
+      ctx.moveTo(34, 11);
+      ctx.lineTo(6, 48);
+      ctx.lineTo(34, 84);
+      ctx.closePath();
+      ctx.fill();
+
+      // Right Triangle Vertices: (42, 6) -> (72, 43) -> (42, 79)
+      ctx.fillStyle = colors.rightTriangleColor;
+      ctx.beginPath();
+      ctx.moveTo(42, 6);
+      ctx.lineTo(72, 43);
+      ctx.lineTo(42, 79);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    function download(type, format) {
+      const canvas = document.getElementById('canvas' + type);
+      const bgSelect = document.getElementById('bg' + type);
+      
+      // Temporary check if downloading JPG on transparent to auto-fill background
+      const needTempBg = format === 'jpg' && bgSelect.value === 'transparent';
+      
+      if (needTempBg) {
+        // Enforce dark background color for JPG if transparent is selected
+        bgSelect.value = 'dark';
+        if (type === 'Horizontal') renderHorizontal();
+        else renderIcon();
+      }
+
+      const link = document.createElement('a');
+      link.download = `beacon-indica-${type.toLowerCase()}.${format === 'png' ? 'png' : 'jpg'}`;
+      
+      if (format === 'png') {
+        link.href = canvas.toDataURL('image/png');
+      } else {
+        link.href = canvas.toDataURL('image/jpeg', 1.0);
+      }
+      
+      link.click();
+
+      // Restore if changed
+      if (needTempBg) {
+        bgSelect.value = 'transparent';
+        if (type === 'Horizontal') renderHorizontal();
+        else renderIcon();
+      }
+    }
+  </script>
+</body>
+</html>

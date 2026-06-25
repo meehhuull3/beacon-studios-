@@ -1,0 +1,40 @@
+{
+  "name": "Broadcast",
+  "type": "object",
+  "properties": {
+    "message": {
+      "type": "string"
+    },
+    "target_audience": {
+      "type": "string",
+      "enum": [
+        "all",
+        "all_faculty",
+        "all_core_team",
+        "specific_college_all",
+        "specific_college_faculty",
+        "specific_college_core_team"
+      ],
+      "default": "all"
+    },
+    "college_id": {
+      "type": "string",
+      "description": "Only for specific_college targets"
+    },
+    "sender_name": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "normal",
+        "urgent"
+      ],
+      "default": "normal"
+    }
+  },
+  "required": [
+    "message",
+    "target_audience"
+  ]
+}

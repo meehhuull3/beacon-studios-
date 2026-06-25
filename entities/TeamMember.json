@@ -1,0 +1,69 @@
+{
+  "name": "TeamMember",
+  "type": "object",
+  "properties": {
+    "full_name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "college_id": {
+      "type": "string",
+      "description": "Reference to College"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "faculty",
+        "president",
+        "vice_president",
+        "marketing",
+        "tech",
+        "admin",
+        "core_team",
+        "associate"
+      ],
+      "description": "Role in the team"
+    },
+    "position": {
+      "type": "string",
+      "enum": [
+        "president",
+        "vice_president",
+        "marketing",
+        "tech"
+      ],
+      "description": "Position for core team members"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Linked user account ID"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "pending_approval",
+        "inactive"
+      ],
+      "default": "pending_approval"
+    },
+    "college_id_number": {
+      "type": "string",
+      "description": "College roll/ID number"
+    },
+    "branch": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "full_name",
+    "email",
+    "college_id",
+    "role"
+  ]
+}

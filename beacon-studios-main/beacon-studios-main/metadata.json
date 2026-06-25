@@ -1,0 +1,6 @@
+{
+  "name": "Beacon Studio",
+  "description": "Premium role-based internal operating system for Beacon Indica startup ecosystem and incubators.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

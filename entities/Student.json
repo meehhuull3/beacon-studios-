@@ -1,0 +1,32 @@
+{
+  "name": "Student",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "college_id": {
+      "type": "string"
+    },
+    "branch": {
+      "type": "string"
+    },
+    "enrolled_by_id": {
+      "type": "string",
+      "description": "TeamMember ID who added this student"
+    },
+    "enrolled_by_name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "college_id"
+  ]
+}
