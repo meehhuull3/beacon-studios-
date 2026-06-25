@@ -5,6 +5,31 @@ const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
+const mapRowResponse = (row) => {
+  if (!row) return row;
+  return {
+    ...row,
+    created_at: row.created_date || row.created_at,
+    updated_at: row.updated_date || row.updated_at,
+  };
+};
+
+const mapResponse = (data) => {
+  if (Array.isArray(data)) {
+    return data.map(mapRowResponse);
+  }
+  return mapRowResponse(data);
+};
+
+const generateHexId = () => {
+  const chars = '0123456789abcdef';
+  let result = '';
+  for (let i = 0; i < 24; i++) {
+    result += chars[Math.floor(Math.random() * 16)];
+  }
+  return result;
+};
+
 const createEntityApi = (tableName) => {
   return {
     list: async (orderBy = '-created_at', limit = null) => {
@@ -12,7 +37,9 @@ const createEntityApi = (tableName) => {
       
       if (orderBy) {
         const isDesc = orderBy.startsWith('-');
-        const column = isDesc ? orderBy.substring(1) : orderBy;
+        let column = isDesc ? orderBy.substring(1) : orderBy;
+        if (column === 'created_at') column = 'created_date';
+        if (column === 'updated_at') column = 'updated_date';
         query = query.order(column, { ascending: !isDesc });
       }
       
@@ -22,17 +49,29 @@ const createEntityApi = (tableName) => {
       
       const { data, error } = await query;
       if (error) throw error;
-      return data || [];
+      return mapResponse(data) || [];
     },
     create: async (data) => {
-      const { data: result, error } = await supabase.from(tableName).insert([data]).select();
+      const payload = { ...data };
+      if (!payload.id) {
+        payload.id = generateHexId();
+      }
+      if (!payload.created_date) {
+        payload.created_date = new Date().toISOString();
+      }
+      if (!payload.updated_date) {
+        payload.updated_date = new Date().toISOString();
+      }
+      const { data: result, error } = await supabase.from(tableName).insert([payload]).select();
       if (error) throw error;
-      return result?.[0] || null;
+      return mapResponse(result?.[0]) || null;
     },
     update: async (id, data) => {
-      const { data: result, error } = await supabase.from(tableName).update(data).eq('id', id).select();
+      const payload = { ...data };
+      payload.updated_date = new Date().toISOString();
+      const { data: result, error } = await supabase.from(tableName).update(payload).eq('id', id).select();
       if (error) throw error;
-      return result?.[0] || null;
+      return mapResponse(result?.[0]) || null;
     },
     delete: async (id) => {
       const { error } = await supabase.from(tableName).delete().eq('id', id);
@@ -53,7 +92,9 @@ const createEntityApi = (tableName) => {
       
       if (orderBy) {
         const isDesc = orderBy.startsWith('-');
-        const column = isDesc ? orderBy.substring(1) : orderBy;
+        let column = isDesc ? orderBy.substring(1) : orderBy;
+        if (column === 'created_at') column = 'created_date';
+        if (column === 'updated_at') column = 'updated_date';
         query = query.order(column, { ascending: !isDesc });
       }
       
@@ -63,7 +104,7 @@ const createEntityApi = (tableName) => {
       
       const { data, error } = await query;
       if (error) throw error;
-      return data || [];
+      return mapResponse(data) || [];
     }
   };
 };
@@ -93,7 +134,7 @@ export const base44 = {
           await supabase.from('team_member').update({ user_id: user.id }).eq('id', member.id);
           member.user_id = user.id;
         }
-        return member;
+        return mapRowResponse(member);
       }
       
       // No team_member record — throw so AuthContext knows this is a real problem
