@@ -54,31 +54,6 @@ import Team from '@/pages/Team';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, user } = useAuth();
-  const [isPending, setIsPending] = React.useState(null);
-
-  React.useEffect(() => {
-    if (user) {
-      const checkApproval = async () => {
-        try {
-          const members = await base44.entities.TeamMember.filter({ user_id: user.id }, '-created_at', 1);
-          if (Array.isArray(members) && members.length > 0) {
-            const memberStatus = members[0].status;
-            if (memberStatus === 'inactive') {
-              // Revoked — force logout
-              await base44.auth.logout();
-              return;
-            }
-            setIsPending(memberStatus === 'pending_approval');
-          } else {
-            setIsPending(false);
-          }
-        } catch {
-          setIsPending(false);
-        }
-      };
-      checkApproval();
-    }
-  }, [user]);
 
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
@@ -100,15 +75,7 @@ const AuthenticatedApp = () => {
     return <Navigate to="/login" replace />;
   }
 
-  if (user && isPending === null) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-background">
-        <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
-      </div>
-    );
-  }
-
-  if (isPending) {
+  if (user && user.status === 'pending_approval') {
     return <PendingApproval user={user} />;
   }
 

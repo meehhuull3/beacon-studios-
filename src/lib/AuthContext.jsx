@@ -23,7 +23,18 @@ export const AuthProvider = ({ children }) => {
       const currentUser = await base44.auth.me();
       if (currentUser) {
         if (currentUser.status === 'inactive') {
-          throw new Error('Your signup application has been declined or restricted.');
+          await supabase.auth.signOut();
+          throw new Error('Your signup application has been declined or restricted. Contact your admin.');
+        }
+        if (currentUser.status === 'pending_approval') {
+          // Don't sign out — let them stay in auth session so PendingApproval page can poll
+          setUser(currentUser);
+          setIsAuthenticated(false); // Not fully authenticated — blocks dashboard access
+          setAuthError(null);
+          setAuthChecked(true);
+          setIsLoadingAuth(false);
+          isCheckingRef.current = false;
+          return; // Stop here — App.jsx will render PendingApproval based on user.status
         }
         setUser(currentUser);
         setIsAuthenticated(true);
@@ -77,11 +88,9 @@ export const AuthProvider = ({ children }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Supabase auth event:', event);
       if (event === 'SIGNED_IN') {
-        if (window.location.pathname === '/reset-password') {
-          setIsLoadingAuth(false);
-          setAuthChecked(true);
-          return;
-        }
+        if (window.location.pathname === '/reset-password') return;
+        // Also check if this is a recovery session — don't run checkUserAuth on recovery sessions
+        if (session?.user?.recovery_sent_at || window.location.hash.includes('type=recovery')) return;
         await checkUserAuth();
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
@@ -89,8 +98,11 @@ export const AuthProvider = ({ children }) => {
         setIsLoadingAuth(false);
         setAuthChecked(true);
       } else if (event === 'PASSWORD_RECOVERY') {
-        // User clicked password reset link — they are now authenticated
-        // ResetPassword.jsx will handle the state and redirect
+        // Recovery session active — do NOT run checkUserAuth, do NOT sign out
+        // ResetPassword.jsx handles this via its own onAuthStateChange listener
+        setIsLoadingAuth(false);
+        setAuthChecked(true);
+        return;
       } else if (event === 'TOKEN_REFRESHED') {
         // Session token was refreshed — re-check user state quietly
         if (!isCheckingRef.current) {

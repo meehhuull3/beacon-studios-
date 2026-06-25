@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Clock, LogOut, RefreshCw, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { base44 } from '@/api/base44Client';
+import { base44, supabase } from '@/api/base44Client';
 
 export default function PendingApproval({ user }) {
   const [isApproved, setIsApproved] = useState(false);
@@ -20,6 +20,12 @@ export default function PendingApproval({ user }) {
     return () => clearInterval(interval);
   }, []);
 
+  React.useEffect(() => {
+    if (isApproved) {
+      supabase.auth.signOut().catch(err => console.error('Sign out failed:', err));
+    }
+  }, [isApproved]);
+
   if (isApproved) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -30,13 +36,13 @@ export default function PendingApproval({ user }) {
           <div>
             <h1 className="text-2xl font-heading font-bold text-foreground">Application Approved!</h1>
             <p className="text-sm text-muted-foreground mt-2">
-              Your application has been approved! You can now log in to access Beacon Studios.
+              Your application has been approved! You can now log in.
             </p>
           </div>
           <div className="flex justify-center w-full">
             <Button
               className="w-full h-12 font-medium"
-              onClick={() => base44.auth.logout()}
+              onClick={() => window.location.href = '/login'}
             >
               Go to Login
             </Button>
