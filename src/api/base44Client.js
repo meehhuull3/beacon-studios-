@@ -3,7 +3,48 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+const createMissingEnvError = () => new Error('Supabase environment variables (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY) are missing. Please add them to your Netlify / Cloudflare environment variables.');
+
+export let supabase;
+
+try {
+  if (!supabaseUrl || !supabaseKey) {
+    throw createMissingEnvError();
+  }
+  supabase = createClient(supabaseUrl, supabaseKey);
+} catch (err) {
+  console.error("Failed to initialize Supabase client:", err.message);
+  
+  const throwErr = () => { throw createMissingEnvError(); };
+  
+  supabase = {
+    auth: {
+      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+      getSession: throwErr,
+      getUser: throwErr,
+      signInWithPassword: throwErr,
+      signOut: throwErr,
+    },
+    from: () => ({
+      select: () => ({
+        order: () => ({
+          limit: throwErr,
+          maybeSingle: throwErr,
+        }),
+        maybeSingle: throwErr,
+      }),
+      insert: throwErr,
+      update: throwErr,
+      delete: throwErr,
+    }),
+    channel: () => ({
+      on: () => ({
+        subscribe: throwErr,
+      }),
+    }),
+    removeChannel: () => {},
+  };
+}
 
 const mapRowResponse = (row) => {
   if (!row) return row;

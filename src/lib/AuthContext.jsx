@@ -49,14 +49,13 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(false);
       setUser(null);
       if (error.message?.includes('No team member profile found')) {
-        // User exists in Supabase auth but has no profile — sign them out and show a clear message
-        await supabase.auth.signOut();
+        try { await supabase.auth.signOut(); } catch {}
         setAuthError('Your account is not set up yet. Please contact your admin.');
       } else if (error.message?.includes('declined or restricted') || error.message?.includes('removed from Beacon Studio')) {
-        await supabase.auth.signOut();
+        try { await supabase.auth.signOut(); } catch {}
         setAuthError(error.message);
       } else {
-        setAuthError(null);
+        setAuthError(error.message);
       }
     } finally {
       setIsLoadingAuth(false);
