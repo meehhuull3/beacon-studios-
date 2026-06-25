@@ -100,7 +100,7 @@ const AuthenticatedApp = () => {
     return <Navigate to="/login" replace />;
   }
 
-  if (user && isPending === null && user.role !== 'admin') {
+  if (user && isPending === null) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-background">
         <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
@@ -126,7 +126,7 @@ const AuthenticatedApp = () => {
           <Route path="/events" element={<Events />} />
           <Route path="/broadcast" element={<Broadcast />} />
           <Route path="/analytics" element={<Analytics />} />
-          <Route path="/approvals" element={user?.role === 'admin' ? <AdminApprovals /> : <Navigate to="/" replace />} />
+          <Route path="/approvals" element={(user?.role === 'admin' || user?.role === 'associate') ? <AdminApprovals /> : <Navigate to="/" replace />} />
           <Route path="/proposals" element={<Proposals />} />
           <Route path="/students" element={<Students />} />
           <Route path="/messaging" element={<Messaging />} />
@@ -140,6 +140,44 @@ const AuthenticatedApp = () => {
 };
 
 function App() {
+  React.useEffect(() => {
+    const preventInspect = (e) => {
+      // Prevent F12
+      if (e.keyCode === 123) {
+        e.preventDefault();
+        return false;
+      }
+      // Prevent Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C
+      if (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) {
+        e.preventDefault();
+        return false;
+      }
+      // Prevent Ctrl+U (View Source)
+      if (e.ctrlKey && e.keyCode === 85) {
+        e.preventDefault();
+        return false;
+      }
+    };
+
+    const preventContextMenu = (e) => {
+      e.preventDefault();
+      return false;
+    };
+
+    document.addEventListener("keydown", preventInspect);
+    document.addEventListener("contextmenu", preventContextMenu);
+
+    // Warning console message
+    console.clear();
+    console.log("%cStop!", "color: red; font-size: 40px; font-weight: bold;");
+    console.log("%cThis is a browser feature intended for developers. Access is restricted for security.", "font-size: 16px; color: #555;");
+
+    return () => {
+      document.removeEventListener("keydown", preventInspect);
+      document.removeEventListener("contextmenu", preventContextMenu);
+    };
+  }, []);
+
   return (
     <ErrorBoundary>
       <AuthProvider>

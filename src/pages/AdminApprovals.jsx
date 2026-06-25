@@ -7,12 +7,21 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { toast } from 'sonner';
 import { Check, X, UserCheck, Phone, Mail, GraduationCap, Clock, Eye, Search, Users, Shield } from 'lucide-react';
 import { format } from 'date-fns';
+import { useAuth } from '@/lib/AuthContext';
+import { Navigate } from 'react-router-dom';
 
 const roleLabels = { admin: 'Admin', faculty: 'Faculty', core_team: 'Core Team', associate: 'Associate' };
 const positionLabels = { president: 'President', vice_president: 'Vice President', marketing: 'Marketing', tech: 'Tech' };
 const roleColors = { admin: 'bg-violet-100 text-violet-700', faculty: 'bg-blue-100 text-blue-700', core_team: 'bg-emerald-100 text-emerald-700', associate: 'bg-orange-100 text-orange-700' };
 
 export default function AdminApprovals() {
+  const { user } = useAuth();
+  const role = user?.role;
+
+  if (role && role !== 'admin' && role !== 'associate') {
+    return <Navigate to="/" replace />;
+  }
+
   const [selected, setSelected] = useState(null);
   const [search, setSearch] = useState('');
   const qc = useQueryClient();

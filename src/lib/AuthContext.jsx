@@ -22,6 +22,9 @@ export const AuthProvider = ({ children }) => {
       setIsLoadingAuth(true);
       const currentUser = await base44.auth.me();
       if (currentUser) {
+        if (currentUser.status === 'inactive') {
+          throw new Error('Your signup application has been declined or restricted.');
+        }
         setUser(currentUser);
         setIsAuthenticated(true);
         setAuthError(null);
@@ -38,6 +41,9 @@ export const AuthProvider = ({ children }) => {
         // User exists in Supabase auth but has no profile — sign them out and show a clear message
         await supabase.auth.signOut();
         setAuthError('Your account is not set up yet. Please contact your admin.');
+      } else if (error.message?.includes('declined or restricted')) {
+        await supabase.auth.signOut();
+        setAuthError(error.message);
       } else {
         setAuthError(null);
       }

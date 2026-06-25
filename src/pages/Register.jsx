@@ -16,6 +16,7 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [fullName, setFullName] = useState("");
+  const [username, setUsername] = useState("");
   const [role, setRole] = useState("");
   const [position, setPosition] = useState("");
   const [phone, setPhone] = useState("");
@@ -24,7 +25,48 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
+  const [usernameError, setUsernameError] = useState("");
+  const [usernameAvailable, setUsernameAvailable] = useState(false);
+  const [emailError, setEmailError] = useState("");
+
   const { data: colleges = [] } = useQuery({ queryKey: ['colleges'], queryFn: () => base44.entities.College.list() });
+
+  const checkUsername = async (enteredUsername) => {
+    if (!enteredUsername) {
+      setUsernameError("");
+      setUsernameAvailable(false);
+      return;
+    }
+    try {
+      const results = await base44.entities.TeamMember.filter({ username: enteredUsername });
+      if (results && results.length > 0) {
+        setUsernameError("This username is already taken");
+        setUsernameAvailable(false);
+      } else {
+        setUsernameError("");
+        setUsernameAvailable(true);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const checkEmail = async (enteredEmail) => {
+    if (!enteredEmail) {
+      setEmailError("");
+      return;
+    }
+    try {
+      const results = await base44.entities.TeamMember.filter({ email: enteredEmail });
+      if (results && results.length > 0) {
+        setEmailError("An account with this email already exists.");
+      } else {
+        setEmailError("");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const handleRegister = async () => {
     setError("");
@@ -32,12 +74,12 @@ export default function Register() {
     try {
       // Step 1: Create Supabase auth account
       const result = await base44.auth.register({ email, password });
-      const user = result?.user;
 
       // Step 2: Create TeamMember profile record immediately
-      const finalStatus = role === 'admin' ? 'pending_approval' : 'active';
+      const finalStatus = 'pending_approval';
       await base44.entities.TeamMember.create({
         full_name: fullName,
+        username,
         email,
         phone: phone || null,
         college_id: (role === 'associate' || role === 'admin') ? null : (collegeId || null),
@@ -71,12 +113,10 @@ export default function Register() {
       <AuthLayout icon={Mail} title="Account created!" subtitle={`Welcome to Beacon Studios, ${fullName}`}>
         <div className="text-center space-y-4">
           <p className="text-sm text-muted-foreground">
-            Your account has been created! You can now log in with your credentials.
-            {role === 'admin' && (
-              <span className="block mt-2 font-medium text-amber-600">
-                ⏳ Admin accounts require approval from an existing admin before access is granted.
-              </span>
-            )}
+            Your account has been created successfully!
+            <span className="block mt-2 font-medium text-amber-600">
+              ⏳ Your account requires approval from an admin or associate before access is granted.
+            </span>
           </p>
           <Link to="/login" className="block">
             <Button className="w-full">Go to Login</Button>
@@ -92,14 +132,6 @@ export default function Register() {
       <AuthLayout icon={User} title="Tell us about yourself" subtitle="Complete your profile to get started">
         {error && <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">{error}</div>}
         <div className="space-y-4">
-          <div className="space-y-2">
-            <Label>Full Name *</Label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input placeholder="Your full name" value={fullName} onChange={e => setFullName(e.target.value)} className="pl-10 h-12" required />
-            </div>
-          </div>
-
           <div className="space-y-2">
             <Label>Role *</Label>
             <Select value={role} onValueChange={setRole}>
@@ -153,14 +185,6 @@ export default function Register() {
             </div>
           )}
 
-          <div className="space-y-2">
-            <Label>Phone Number</Label>
-            <div className="relative">
-              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input placeholder="Your phone number" value={phone} onChange={e => setPhone(e.target.value)} className="pl-10 h-12" />
-            </div>
-          </div>
-
           <div className="flex gap-3 pt-2">
             <Button type="button" variant="outline" className="flex-1 h-12" onClick={() => setStep(1)}>
               <ArrowLeft className="w-4 h-4 mr-2" /> Back
@@ -169,7 +193,6 @@ export default function Register() {
               type="button"
               className="flex-1 h-12 font-medium"
               onClick={() => {
-                if (!fullName) { setError("Please enter your full name"); return; }
                 if (!role) { setError("Please select your role"); return; }
                 if ((role === 'faculty' || role === 'core_team') && !collegeId) { setError("Please select your college"); return; }
                 if (role === 'core_team' && !position) { setError("Please select your position"); return; }
@@ -186,7 +209,7 @@ export default function Register() {
     );
   }
 
-  // Step 1: Email & Password
+  // Step 1: Profile Details (FullName, Username, Email, Phone, Passwords)
   return (
     <AuthLayout
       icon={UserPlus}
@@ -200,39 +223,157 @@ export default function Register() {
       }
     >
       {error && <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">{error}</div>}
-      <form onSubmit={(e) => {
+      <form onSubmit={async (e) => {
         e.preventDefault();
         setError("");
+        
+        if (!fullName.trim()) { setError("Please enter your full name"); return; }
+        if (!username.trim()) { setError("Please enter a username"); return; }
+        
+        setLoading(true);
+        try {
+          const usernameCheck = await base44.entities.TeamMember.filter({ username });
+          if (usernameCheck && usernameCheck.length > 0) {
+            setUsernameError("This username is already taken");
+            setError("This username is already taken");
+            setLoading(false);
+            return;
+          }
+          const emailCheck = await base44.entities.TeamMember.filter({ email });
+          if (emailCheck && emailCheck.length > 0) {
+            setEmailError("An account with this email already exists.");
+            setError("An account with this email already exists.");
+            setLoading(false);
+            return;
+          }
+        } catch (err) {
+          console.error("Uniqueness check failed:", err);
+        } finally {
+          setLoading(false);
+        }
+
         if (password !== confirmPassword) { setError("Passwords do not match"); return; }
         if (password.length < 6) { setError("Password must be at least 6 characters"); return; }
         setStep(2);
       }} className="space-y-4">
+        {/* Full Name */}
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="fullName">Full Name *</Label>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input id="email" type="email" autoComplete="email" autoFocus placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} className="pl-10 h-12" required />
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              id="fullName"
+              placeholder="Your full name"
+              value={fullName}
+              onChange={e => setFullName(e.target.value)}
+              className="pl-10 h-12"
+              required
+            />
           </div>
         </div>
+
+        {/* Username */}
         <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="username">Username *</Label>
+          <div className="relative">
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              id="username"
+              placeholder="unique_username"
+              value={username}
+              onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+              onBlur={() => checkUsername(username)}
+              className="pl-10 h-12"
+              required
+            />
+          </div>
+          {usernameError && (
+            <p className="text-xs text-destructive mt-1">{usernameError}</p>
+          )}
+          {usernameAvailable && !usernameError && username && (
+            <p className="text-xs text-emerald-600 mt-1">✓ Username available</p>
+          )}
+        </div>
+
+        {/* Email */}
+        <div className="space-y-2">
+          <Label htmlFor="email">Email *</Label>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              id="email"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              onBlur={() => checkEmail(email)}
+              className="pl-10 h-12"
+              required
+            />
+          </div>
+          {emailError && (
+            <p className="text-xs text-destructive mt-1">{emailError}</p>
+          )}
+        </div>
+
+        {/* Phone Number */}
+        <div className="space-y-2">
+          <Label htmlFor="phone">Phone Number</Label>
+          <div className="relative">
+            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              id="phone"
+              placeholder="Your phone number"
+              value={phone}
+              onChange={e => setPhone(e.target.value)}
+              className="pl-10 h-12"
+            />
+          </div>
+        </div>
+
+        {/* Create Password */}
+        <div className="space-y-2">
+          <Label htmlFor="password">Create Password *</Label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input id="password" type={showPassword ? "text" : "password"} autoComplete="new-password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} className="pl-10 pr-10 h-12" required />
-            <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground" onClick={() => setShowPassword(!showPassword)}>
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="••••••••"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              className="pl-10 pr-10 h-12"
+              required
+            />
+            <button
+              type="button"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              onClick={() => setShowPassword(!showPassword)}
+            >
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
         </div>
+
+        {/* Confirm Password */}
         <div className="space-y-2">
-          <Label htmlFor="confirm">Confirm Password</Label>
+          <Label htmlFor="confirm">Confirm Password *</Label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input id="confirm" type={showPassword ? "text" : "password"} autoComplete="new-password" placeholder="••••••••" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="pl-10 h-12" required />
+            <Input
+              id="confirm"
+              type={showPassword ? "text" : "password"}
+              placeholder="••••••••"
+              value={confirmPassword}
+              onChange={e => setConfirmPassword(e.target.value)}
+              className="pl-10 h-12"
+              required
+            />
           </div>
         </div>
-        <Button type="submit" className="w-full h-12 font-medium">
-          Continue <ArrowRight className="w-4 h-4 ml-2" />
+
+        <Button type="submit" className="w-full h-12 font-medium" disabled={loading}>
+          {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <>Continue <ArrowRight className="w-4 h-4 ml-2" /></>}
         </Button>
       </form>
     </AuthLayout>

@@ -14,18 +14,80 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { authError } = useAuth();
+  
+  const [attempts, setAttempts] = useState(0);
+  const [lockedUntil, setLockedUntil] = useState(null);
+  const [secondsRemaining, setSecondsRemaining] = useState(0);
 
-  const displayError = error || authError;
+  const formatTime = (secs) => {
+    const minutes = Math.floor(secs / 60);
+    const seconds = secs % 60;
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  };
+
+  const displayError = lockedUntil && secondsRemaining > 0
+    ? `Too many failed attempts. Please wait ${formatTime(secondsRemaining)} before trying again.`
+    : (error || authError);
+
+  React.useEffect(() => {
+    const lockedTime = localStorage.getItem('login_locked_until');
+    if (lockedTime) {
+      const parsed = parseInt(lockedTime, 10);
+      if (parsed && Date.now() < parsed) {
+        setLockedUntil(parsed);
+      } else {
+        localStorage.removeItem('login_locked_until');
+      }
+    }
+  }, []);
+
+  React.useEffect(() => {
+    if (!lockedUntil) return;
+
+    const updateCountdown = () => {
+      const now = Date.now();
+      if (now >= lockedUntil) {
+        setLockedUntil(null);
+        setSecondsRemaining(0);
+        localStorage.removeItem('login_locked_until');
+      } else {
+        setSecondsRemaining(Math.ceil((lockedUntil - now) / 1000));
+      }
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, [lockedUntil]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    if (lockedUntil && Date.now() < lockedUntil) {
+      const remainingSeconds = Math.ceil((lockedUntil - Date.now()) / 1000);
+      setError(`Too many failed attempts. Please wait ${formatTime(remainingSeconds)} before trying again.`);
+      return;
+    }
+
     setLoading(true);
     try {
       await base44.auth.loginViaEmailPassword(email, password);
+      localStorage.removeItem('login_locked_until');
+      setAttempts(0);
       window.location.href = "/";
     } catch (err) {
-      setError(err.message || "Invalid email or password");
+      const nextAttempts = attempts + 1;
+      if (attempts >= 4) {
+        const lockoutTime = Date.now() + 5 * 60 * 1000;
+        setLockedUntil(lockoutTime);
+        localStorage.setItem('login_locked_until', lockoutTime.toString());
+        setAttempts(0);
+        setError("You have been temporarily locked out due to too many failed attempts. Please wait 5 minutes.");
+      } else {
+        setAttempts(nextAttempts);
+        setError(err.message || "Invalid email or password");
+      }
     } finally {
       setLoading(false);
     }
@@ -90,12 +152,14 @@ export default function Login() {
             />
           </div>
         </div>
-        <Button type="submit" className="w-full h-12 font-medium" disabled={loading}>
+        <Button type="submit" className="w-full h-12 font-medium" disabled={loading || (lockedUntil && secondsRemaining > 0)}>
           {loading ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               Logging in...
             </>
+          ) : lockedUntil && secondsRemaining > 0 ? (
+            `Locked Out (${formatTime(secondsRemaining)})`
           ) : (
             "Log in"
           )}

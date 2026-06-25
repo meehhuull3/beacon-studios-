@@ -143,6 +143,11 @@ export const base44 = {
       }
         
       if (member) {
+        if (!member.username) {
+          const slug = (member.full_name || member.email).toLowerCase().replace(/[^a-z0-9]/g, '_');
+          await supabase.from('team_member').update({ username: slug }).eq('id', member.id);
+          member.username = slug;
+        }
         // Auto-heal user_id if it still points to old Base44 hex ID or is null
         if (member.user_id !== user.id) {
           await supabase.from('team_member').update({ user_id: user.id }).eq('id', member.id);
