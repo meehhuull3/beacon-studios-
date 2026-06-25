@@ -15,6 +15,11 @@ export default function ResetPassword() {
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
+    // Check if we are currently in a recovery flow (has token in URL query or hash)
+    const hasToken = window.location.hash.includes("access_token=") || 
+                      window.location.search.includes("code=") ||
+                      window.location.hash.includes("type=recovery");
+
     // Listen for PASSWORD_RECOVERY event from Supabase
     // This fires when the user clicks the reset link from their email
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -28,11 +33,22 @@ export default function ResetPassword() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         setSessionReady(true);
+        setChecking(false);
+      } else if (!hasToken) {
+        // Only stop checking if we don't expect a token exchange
+        setChecking(false);
       }
-      setChecking(false);
     });
 
-    return () => subscription?.unsubscribe();
+    // Safety timeout in case token exchange fails or hangs
+    const safetyTimeout = setTimeout(() => {
+      setChecking(false);
+    }, 5000);
+
+    return () => {
+      subscription?.unsubscribe();
+      clearTimeout(safetyTimeout);
+    };
   }, []);
 
   const handleSubmit = async (e) => {
