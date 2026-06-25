@@ -92,8 +92,15 @@ export default function Messaging() {
   }, [activeGroupId, qc]);
 
   // Messages for active group, sorted oldest first
+  const accountCreatedDate = user?.created_at ? new Date(user.created_at) : null;
   const groupMessages = allMessages
-    .filter(m => m.group_id === (activeGroup?.id || activeGroupId))
+    .filter(m => {
+      if (m.group_id !== (activeGroup?.id || activeGroupId)) return false;
+      if (accountCreatedDate && m.created_at) {
+        if (new Date(m.created_at) < accountCreatedDate) return false;
+      }
+      return true;
+    })
     .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 
   const sendMut = useMutation({
@@ -150,7 +157,15 @@ export default function Messaging() {
                   </p>
                 )}
               </div>
-              <span className="text-[10px] text-muted-foreground">{allMessages.filter(m => m.group_id === g.id).length}</span>
+              <span className="text-[10px] text-muted-foreground">
+                {allMessages.filter(m => {
+                  if (m.group_id !== g.id) return false;
+                  if (accountCreatedDate && m.created_at) {
+                    if (new Date(m.created_at) < accountCreatedDate) return false;
+                  }
+                  return true;
+                }).length}
+              </span>
             </button>
           ))}
         </div>

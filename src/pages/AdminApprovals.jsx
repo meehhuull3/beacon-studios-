@@ -24,24 +24,57 @@ export default function AdminApprovals() {
 
   const [selected, setSelected] = useState(null);
   const [search, setSearch] = useState('');
+  const [roleFilter, setRoleFilter] = useState('all');
+  const [collegeFilter, setCollegeFilter] = useState('all');
   const qc = useQueryClient();
 
   const { data: members = [] } = useQuery({ queryKey: ['team'], queryFn: () => base44.entities.TeamMember.list('-created_at') });
   const { data: colleges = [] } = useQuery({ queryKey: ['colleges'], queryFn: () => base44.entities.College.list() });
 
-  const pending = members.filter(m => m.status === 'pending_approval');
-  const active = members.filter(m => m.status === 'active');
-  const declined = members.filter(m => m.status === 'inactive');
+  const pending = members.filter(m => {
+    if (m.status !== 'pending_approval') return false;
+    if (role === 'associate') {
+      return m.role === 'faculty' || m.role === 'core_team';
+    }
+    return true;
+  });
 
-  const filteredActive = active.filter(m =>
-    !search ||
-    m.full_name?.toLowerCase().includes(search.toLowerCase()) ||
-    m.email?.toLowerCase().includes(search.toLowerCase()) ||
-    getCollegeName(m.college_id)?.toLowerCase().includes(search.toLowerCase())
-  );
+  const active = members.filter(m => {
+    if (m.status !== 'active') return false;
+    if (role === 'associate') {
+      return m.role === 'faculty' || m.role === 'core_team';
+    }
+    return true;
+  });
+
+  const declined = members.filter(m => {
+    if (m.status !== 'inactive') return false;
+    if (role === 'associate') {
+      return m.role === 'faculty' || m.role === 'core_team';
+    }
+    return true;
+  });
+
+  const filteredActive = active.filter(m => {
+    if (roleFilter !== 'all' && m.role !== roleFilter) return false;
+    if (collegeFilter !== 'all' && m.college_id !== collegeFilter) return false;
+    
+    const searchLower = search.toLowerCase();
+    return (
+      !search ||
+      m.full_name?.toLowerCase().includes(searchLower) ||
+      m.username?.toLowerCase().includes(searchLower) ||
+      m.email?.toLowerCase().includes(searchLower) ||
+      m.phone?.toLowerCase().includes(searchLower) ||
+      getCollegeName(m.college_id)?.toLowerCase().includes(searchLower)
+    );
+  });
 
   const approveMut = useMutation({
     mutationFn: async (member) => {
+      if (role === 'associate' && member.role !== 'faculty' && member.role !== 'core_team') {
+        throw new Error('Unauthorized: Associates can only approve faculty or core team signup requests.');
+      }
       await base44.entities.TeamMember.update(member.id, { status: 'active' });
         try {
           await base44.entities.Notification.create({
@@ -80,9 +113,27 @@ export default function AdminApprovals() {
   });
 
   const declineMut = useMutation({
-    mutationFn: (member) => base44.entities.TeamMember.update(member.id, { status: 'inactive' }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['team'] }); toast.success('Member declined'); setSelected(null); },
+    mutationFn: (member) => {
+      if (role === 'associate' && member.role !== 'faculty' && member.role !== 'core_team') {
+        throw new Error('Unauthorized: Associates can only decline/revoke faculty or core team members.');
+      }
+      if (role === 'admin' && member.role === 'admin') {
+        throw new Error('Unauthorized: Admins cannot revoke other admin accounts.');
+      }
+      return base44.entities.TeamMember.update(member.id, { status: 'inactive' });
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['team'] }); toast.success('Member updated'); setSelected(null); },
   });
+
+  const canRevoke = (targetMember) => {
+    if (role === 'admin') {
+      return targetMember.role !== 'admin';
+    }
+    if (role === 'associate') {
+      return targetMember.role === 'faculty' || targetMember.role === 'core_team';
+    }
+    return false;
+  };
 
   function getCollegeName(id) { return colleges.find(c => c.id === id)?.name || '—'; }
 
@@ -144,15 +195,40 @@ export default function AdminApprovals() {
 
       {/* User Directory */}
       <section>
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
           <h2 className="text-lg font-semibold flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-emerald-500" />
             Active Users
             <span className="text-muted-foreground font-normal text-sm">({active.length})</span>
           </h2>
-          <div className="relative w-64">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <Input className="pl-9 h-8 text-sm" placeholder="Search users..." value={search} onChange={e => setSearch(e.target.value)} />
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="relative w-48">
+              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input className="pl-9 h-8 text-xs" placeholder="Search users..." value={search} onChange={e => setSearch(e.target.value)} />
+            </div>
+            
+            <select
+              value={roleFilter}
+              onChange={e => setRoleFilter(e.target.value)}
+              className="h-8 rounded-md border border-input bg-background px-2.5 py-1 text-xs shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring text-muted-foreground font-medium"
+            >
+              <option value="all">All Roles</option>
+              <option value="admin">Admin</option>
+              <option value="associate">Associate</option>
+              <option value="faculty">Faculty</option>
+              <option value="core_team">Core Team</option>
+            </select>
+
+            <select
+              value={collegeFilter}
+              onChange={e => setCollegeFilter(e.target.value)}
+              className="h-8 max-w-[200px] rounded-md border border-input bg-background px-2.5 py-1 text-xs shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring text-muted-foreground font-medium truncate"
+            >
+              <option value="all">All Colleges</option>
+              {colleges.map(c => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
           </div>
         </div>
         <div className="bg-card rounded-xl border border-border overflow-hidden">
@@ -189,9 +265,11 @@ export default function AdminApprovals() {
                       {m.created_at ? format(new Date(m.created_at), 'MMM d, yyyy') : '—'}
                     </td>
                     <td className="px-5 py-3">
-                      <Button size="sm" variant="ghost" className="text-destructive text-xs h-7" onClick={() => declineMut.mutate(m)}>
-                        Revoke
-                      </Button>
+                      {canRevoke(m) && (
+                        <Button size="sm" variant="ghost" className="text-destructive text-xs h-7" onClick={() => declineMut.mutate(m)} disabled={declineMut.isPending}>
+                          Revoke
+                        </Button>
+                      )}
                     </td>
                   </tr>
                 ))}

@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
       if (currentUser) {
         if (currentUser.status === 'inactive') {
           await supabase.auth.signOut();
-          throw new Error('Your signup application has been declined or restricted. Contact your admin.');
+          throw new Error('You are removed from Beacon Studio by an admin or associate. You cannot log in until an admin or associate re-approves you.');
         }
         if (currentUser.status === 'pending_approval') {
           // Don't sign out — let them stay in auth session so PendingApproval page can poll
@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }) => {
         // User exists in Supabase auth but has no profile — sign them out and show a clear message
         await supabase.auth.signOut();
         setAuthError('Your account is not set up yet. Please contact your admin.');
-      } else if (error.message?.includes('declined or restricted')) {
+      } else if (error.message?.includes('declined or restricted') || error.message?.includes('removed from Beacon Studio')) {
         await supabase.auth.signOut();
         setAuthError(error.message);
       } else {
@@ -118,6 +118,35 @@ export const AuthProvider = ({ children }) => {
       subscription?.unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    if (!isAuthenticated || !user) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const currentUser = await base44.auth.me();
+        if (!currentUser || currentUser.status === 'inactive' || currentUser.status === 'pending_approval') {
+          setUser(null);
+          setIsAuthenticated(false);
+          await supabase.auth.signOut();
+          if (!currentUser || currentUser.status === 'inactive') {
+            setAuthError('You are removed from Beacon Studio by an admin or associate. You cannot log in until an admin or associate re-approves you.');
+          }
+          window.location.href = '/login';
+        }
+      } catch (err) {
+        if (err.message?.includes('No team member profile') || err.message?.includes('declined or restricted') || err.message?.includes('removed') || err.message?.includes('restricted')) {
+          setUser(null);
+          setIsAuthenticated(false);
+          await supabase.auth.signOut();
+          setAuthError('You are removed from Beacon Studio by an admin or associate. You cannot log in until an admin or associate re-approves you.');
+          window.location.href = '/login';
+        }
+      }
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [isAuthenticated, user]);
 
   const logout = async (shouldRedirect = true) => {
     setUser(null);

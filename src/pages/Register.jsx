@@ -99,32 +99,19 @@ export default function Register() {
         });
       } catch {}
 
-      setSuccess(true);
+      // Auto login so AuthContext can verify session and show PendingApproval page
+      try {
+        await base44.auth.loginViaEmailPassword(email, password);
+      } catch (loginErr) {
+        console.warn("Auto login after registration failed:", loginErr);
+      }
+      window.location.href = '/';
     } catch (err) {
       setError(err.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
-
-  // Success screen
-  if (success) {
-    return (
-      <AuthLayout icon={Mail} title="Account created!" subtitle={`Welcome to Beacon Studios, ${fullName}`}>
-        <div className="text-center space-y-4">
-          <p className="text-sm text-muted-foreground">
-            Your account has been created successfully!
-            <span className="block mt-2 font-medium text-amber-600">
-              ⏳ Your account requires approval from an admin or associate before access is granted.
-            </span>
-          </p>
-          <Link to="/login" className="block">
-            <Button className="w-full">Go to Login</Button>
-          </Link>
-        </div>
-      </AuthLayout>
-    );
-  }
 
   // Step 2: Profile Details
   if (step === 2) {

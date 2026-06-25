@@ -61,7 +61,7 @@ export default function PendingApproval({ user }) {
         <div>
           <h1 className="text-2xl font-heading font-bold text-foreground">Approval Pending</h1>
           <p className="text-sm text-muted-foreground mt-2">
-            Your account has been created but requires admin or associate approval before you can access Beacon Studios.
+            Your application is in process and approval is pending by an admin or associate.
           </p>
           <p className="text-xs text-muted-foreground mt-2">
             This page refreshes automatically. You'll be redirected as soon as your account is approved.

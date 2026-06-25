@@ -240,30 +240,46 @@ export default function Events() {
           <h2 className="text-base font-heading font-semibold mb-3">My Proposals</h2>
           <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
             {myProposals.map(p => (
-              <div key={p.id} className="bg-card rounded-xl border border-border p-4">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">{typeIcons[p.type] || '📋'}</span>
-                    <div>
-                      <h3 className="font-semibold text-sm">{p.title}</h3>
-                      <p className="text-xs text-muted-foreground capitalize">{p.custom_type || p.type}</p>
-                    </div>
+              p.status === 'declined' ? (
+                <div key={p.id} className="bg-card rounded-xl border border-red-200 bg-red-50/10 p-4 space-y-2">
+                  <div className="flex items-start justify-between">
+                    <h3 className="font-semibold text-sm text-red-950">{p.title}</h3>
+                    <span className="text-xs px-2 py-0.5 rounded bg-red-100 text-red-700 font-medium">Declined</span>
                   </div>
-                  <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${proposalStatusColors[p.status] || proposalStatusColors.pending}`}>
-                    {p.status === 'pending' ? 'Pending' : p.status === 'approved' ? 'Approved ✓' : 'Declined'}
-                  </span>
+                  {p.description && (
+                    <p className="text-xs text-muted-foreground leading-relaxed">{p.description}</p>
+                  )}
+                  <div className="text-xs text-muted-foreground border-t border-dashed border-red-200 pt-2">
+                    <span className="font-medium text-red-700 block mb-0.5">Admin or Associate Review Note:</span>
+                    <span className="italic">"{p.response_message || 'This proposal was declined by an admin or associate.'}"</span>
+                  </div>
                 </div>
-                {p.date && (
-                  <p className="text-xs text-muted-foreground flex items-center gap-1.5 mb-1">
-                    <Calendar className="w-3 h-3" />{format(new Date(p.date), 'MMM d, yyyy')}
-                  </p>
-                )}
-                {p.response_message && (
-                  <p className="text-xs text-muted-foreground mt-2 italic border-t border-border pt-2">
-                    "{p.response_message}"
-                  </p>
-                )}
-              </div>
+              ) : (
+                <div key={p.id} className="bg-card rounded-xl border border-border p-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">{typeIcons[p.type] || '📋'}</span>
+                      <div>
+                        <h3 className="font-semibold text-sm">{p.title}</h3>
+                        <p className="text-xs text-muted-foreground capitalize">{p.custom_type || p.type}</p>
+                      </div>
+                    </div>
+                    <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${proposalStatusColors[p.status] || proposalStatusColors.pending}`}>
+                      {p.status === 'pending' ? 'Pending' : p.status === 'approved' ? 'Approved ✓' : 'Declined'}
+                    </span>
+                  </div>
+                  {p.date && (
+                    <p className="text-xs text-muted-foreground flex items-center gap-1.5 mb-1">
+                      <Calendar className="w-3 h-3" />{format(new Date(p.date), 'MMM d, yyyy')}
+                    </p>
+                  )}
+                  {p.response_message && (
+                    <p className="text-xs text-muted-foreground mt-2 italic border-t border-border pt-2">
+                      "{p.response_message}"
+                    </p>
+                  )}
+                </div>
+              )
             ))}
           </div>
         </div>

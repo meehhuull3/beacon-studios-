@@ -36,11 +36,18 @@ export default function Dashboard() {
     if (hour < 17) return 'Good afternoon';
     return 'Good evening';
   };
+  const userCollege = colleges.find(c => c.id === userCollegeId);
+  const collegeName = userCollege?.name;
 
   return (
     <div className="space-y-8">
       {/* Header */}
       <div>
+        {(role === 'faculty' || role === 'core_team') && collegeName && (
+          <div className="text-sm text-[#00ADB5] font-semibold tracking-wider uppercase mb-2">
+            {collegeName}
+          </div>
+        )}
         <h1 className="text-2xl font-heading font-bold text-foreground">
           {greeting()}, {user?.full_name?.split(' ')[0] || 'there'}
         </h1>
