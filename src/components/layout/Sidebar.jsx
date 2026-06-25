@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, Building2, Rocket, Calendar,
   Megaphone, BarChart3, UserCheck, LogOut, ChevronLeft, ChevronRight,
-  ClipboardList, GraduationCap, MessageSquare
+  ClipboardList, GraduationCap, MessageSquare, Users
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
